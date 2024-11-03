@@ -8,7 +8,8 @@ cd "$base/data" || exit 1
 repos=$(gh repo list --json nameWithOwner -q '.[].nameWithOwner')
 
 for repo in $repos; do
-    name=$(basename "$repo")
+    pfx=$(gh repo view "$repo" --json id -q '.id' | shasum | cut -d' ' -f1)
+    name=$(basename "$repo")-"$pfx"
 
     echo "Syncing: $name"
 
@@ -17,6 +18,6 @@ for repo in $repos; do
         (cd "$name" && git pull)
     else
         # Clone the repo
-        gh repo clone "$repo"
+        gh repo clone "$repo" "$name"
     fi
 done
